@@ -33,7 +33,6 @@ def get(path):
     if "Contents" not in objects:
         return f"Deployment {id} does not exist!", 404
     files = [file["Key"] for file in objects["Contents"] if file["Key"].endswith(path.split("/")[-1])]
-    print(files)
     if len(files) == 0:
         return f"Resource {path} does not exist in deployment {id}!", 404
     if not os.path.exists(f"cache/{id}"):

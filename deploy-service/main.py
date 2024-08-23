@@ -14,8 +14,7 @@ s3 = session.client(
     aws_access_key_id=os.environ['S3_ACCESS_KEY'],
     aws_secret_access_key=os.environ['S3_SECRET_KEY'],
     aws_session_token=None,
-    config=boto3.session.Config(signature_version='s3v4'),
-    verify=False
+    config=boto3.session.Config(signature_version='s3v4')
 )
 
 redis = redis.Redis(host='localhost', port=6379, decode_responses=True)
@@ -33,8 +32,6 @@ def build(id):
                 for file in files:
                     s3.upload_file(os.path.join(root, file), "venscale", f"builds/{id}/{file}")
             redis.set(id, "deployed")
-            with open("C:\\Windows\\System32\\drivers\\etc\\hosts", "a") as f:
-                f.write(f"127.0.0.1 {id}.venscale.com\n")
         except Exception as e:
             print(f"An error occurred while building the project {id}: {e}")
             redis.set(id, "failed")
