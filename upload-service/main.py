@@ -7,6 +7,9 @@ import boto3
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 import redis
+import dotenv
+
+dotenv.load_dotenv()
 
 app = Flask(__name__)
 
