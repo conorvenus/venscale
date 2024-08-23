@@ -33,6 +33,8 @@ def build(id):
                 for file in files:
                     s3.upload_file(os.path.join(root, file), "testbucket", f"builds/{id}/{file}")
             redis.set(id, "deployed")
+            with open("C:\\Windows\\System32\\drivers\\etc\\hosts", "a") as f:
+                f.write(f"127.0.0.1 {id}.venscale.com\n")
         except Exception as e:
             print(f"An error occurred while building the project {id}: {e}")
             redis.set(id, "failed")

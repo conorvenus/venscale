@@ -33,12 +33,13 @@ def get(path):
     if "Contents" not in objects:
         return f"Deployment {id} does not exist!", 404
     files = [file["Key"] for file in objects["Contents"] if file["Key"].endswith(path.split("/")[-1])]
+    print(files)
     if len(files) == 0:
         return f"Resource {path} does not exist in deployment {id}!", 404
     if not os.path.exists(f"cache/{id}"):
         os.makedirs(f"cache/{id}")
-    s3.download_file("testbucket", files[0], f"cache/{id}/{path.split("/")[-1]}")
-    return send_file(path.split("/")[-1])
+    s3.download_file("testbucket", files[0], f"cache/{id}/{path.split('/')[-1]}")
+    return send_file(f"cache/{id}/" + path.split("/")[-1])
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5001, debug=True)
