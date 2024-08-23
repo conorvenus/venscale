@@ -29,7 +29,7 @@ def get(path):
     if not host.subdomain or '.' in host.subdomain:
         return f"The URL you provided does not correspond to a valid VenScale deployment!", 400
     id = host.subdomain
-    objects = s3.list_objects_v2(Bucket="testbucket", Prefix=f"builds/{id}")
+    objects = s3.list_objects_v2(Bucket="venscale", Prefix=f"builds/{id}")
     if "Contents" not in objects:
         return f"Deployment {id} does not exist!", 404
     files = [file["Key"] for file in objects["Contents"] if file["Key"].endswith(path.split("/")[-1])]
@@ -38,7 +38,7 @@ def get(path):
         return f"Resource {path} does not exist in deployment {id}!", 404
     if not os.path.exists(f"cache/{id}"):
         os.makedirs(f"cache/{id}")
-    s3.download_file("testbucket", files[0], f"cache/{id}/{path.split('/')[-1]}")
+    s3.download_file("venscale", files[0], f"cache/{id}/{path.split('/')[-1]}")
     return send_file(f"cache/{id}/" + path.split("/")[-1])
 
 if __name__ == "__main__":

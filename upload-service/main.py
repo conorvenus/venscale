@@ -43,7 +43,7 @@ def clone_repo(repo_url, id):
             if ".git" in file:
                 continue
             file = file.replace("\\", "/")
-            s3.upload_file(file, "testbucket", file)
+            s3.upload_file(file, "venscale", file)
             print(f"Uploaded {file}")
             os.remove(file)
         redis.set(id, "uploaded")

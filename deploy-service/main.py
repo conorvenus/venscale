@@ -31,7 +31,7 @@ def build(id):
                 raise Exception("Build failed: dist folder not found.")
             for root, _, files in os.walk("dist"):
                 for file in files:
-                    s3.upload_file(os.path.join(root, file), "testbucket", f"builds/{id}/{file}")
+                    s3.upload_file(os.path.join(root, file), "venscale", f"builds/{id}/{file}")
             redis.set(id, "deployed")
             with open("C:\\Windows\\System32\\drivers\\etc\\hosts", "a") as f:
                 f.write(f"127.0.0.1 {id}.venscale.com\n")
@@ -44,10 +44,10 @@ def build(id):
         print(f"Repository path {repo_path} does not exist.")
 
 def deploy(id):
-    for file in s3.list_objects_v2(Bucket="testbucket", Prefix=f"repos/{id}")["Contents"]:
+    for file in s3.list_objects_v2(Bucket="venscale", Prefix=f"repos/{id}")["Contents"]:
         if not os.path.exists(os.path.dirname(file["Key"])):
             os.makedirs(os.path.dirname(file["Key"]))
-        s3.download_file("testbucket", file["Key"], file["Key"])
+        s3.download_file("venscale", file["Key"], file["Key"])
     build(id)
 
 redis.delete("completed_uploads")
