@@ -37,7 +37,8 @@ def get(path):
         return f"Resource {path} does not exist in deployment {id}!", 404
     if not os.path.exists(f"cache/{id}"):
         os.makedirs(f"cache/{id}")
-    s3.download_file("venscale", files[0], f"cache/{id}/{path.split('/')[-1]}")
+    if not os.path.exists(f"cache/{id}/{path.split('/')[-1]}"):
+        s3.download_file("venscale", files[0], f"cache/{id}/{path.split('/')[-1]}")
     return send_file(f"cache/{id}/" + path.split("/")[-1])
 
 if __name__ == "__main__":
