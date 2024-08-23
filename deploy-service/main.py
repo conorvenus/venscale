@@ -32,8 +32,10 @@ def build(id):
             for root, _, files in os.walk("dist"):
                 for file in files:
                     s3.upload_file(os.path.join(root, file), "testbucket", f"builds/{id}/{file}")
+            redis.set(id, "deployed")
         except Exception as e:
             print(f"An error occurred while building the project {id}: {e}")
+            redis.set(id, "failed")
         finally:
             os.chdir("../../")
     else:
@@ -46,7 +48,10 @@ def deploy(id):
         s3.download_file("testbucket", file["Key"], file["Key"])
     build(id)
 
+redis.delete("completed_uploads")
+
 while True:
     id = redis.rpop("completed_uploads")
     if id is not None:
+        redis.set(id, "deploying")
         deploy(id)

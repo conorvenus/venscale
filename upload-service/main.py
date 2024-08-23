@@ -27,8 +27,6 @@ s3 = session.client(
     verify=False
 )
 
-statuses = {}
-
 redis = redis.Redis(host='localhost', port=6379, decode_responses=True)
 
 def get_files(dir):
@@ -48,10 +46,10 @@ def clone_repo(repo_url, id):
             s3.upload_file(file, "testbucket", file)
             print(f"Uploaded {file}")
             os.remove(file)
-        statuses[id] = "completed"
+        redis.set(id, "uploaded")
         redis.lpush("completed_uploads", id)
     except Exception as e:
-        statuses[id] = "failed"
+        redis.set(id, "failed")
 
 def get_uuid():
     return str(uuid.uuid4())
@@ -63,7 +61,7 @@ def deploy():
     if not repo_url:
         return jsonify({"error": "No repoUrl provided"}), 400
     id = get_uuid()
-    statuses[id] = "pending"
+    redis.set(id, "uploading")
     threading.Thread(target=clone_repo, args=(repo_url, id)).start()
     return jsonify({"id": id}), 200
 
@@ -72,8 +70,8 @@ def status():
     id = request.args.get('id')
     if not id:
         return jsonify({"error": "No id provided"}), 400
-    if id in statuses:
-        return jsonify({"status": statuses[id]}), 200
+    if redis.exists(id):
+        return jsonify({"status": redis.get(id)}), 200
     return jsonify({"error": "No deployment found with the provided id"}), 404
 
 if __name__ == "__main__":
