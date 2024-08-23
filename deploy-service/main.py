@@ -22,10 +22,10 @@ redis = redis.Redis(host='localhost', port=6379, decode_responses=True)
 def build(id):
     repo_path = os.path.join("repos", id)
     if os.path.exists(repo_path):
-        try:
+        try:    
             os.chdir(repo_path)
-            subprocess.run(["npm", "install"], shell=True, check=True)
-            subprocess.run(["npm", "run", "build"], shell=True, check=True)
+            subprocess.run(["npm", "install"], shell=False, check=True)
+            subprocess.run(["npm", "run", "build"], shell=False, check=True)
             if not os.path.exists("dist"):
                 raise Exception("Build failed: dist folder not found.")
             for root, _, files in os.walk("dist"):
