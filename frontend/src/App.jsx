@@ -25,7 +25,7 @@ function App() {
         clearInterval(interval)
       }
       if (data.status === 'deployed') {
-        window.open(`http://${deploymentId}.venscale.com:5001`, '_blank')
+        window.open(`http://${deploymentId}.pawsitter.site`, '_blank')
         toast.success('Your repository has been deployed successfully.', { autoClose: 5000 })
       }
       if (data.status === 'failed') {

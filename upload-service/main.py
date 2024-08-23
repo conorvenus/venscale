@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 from git import Repo
+from faker import Faker
 import threading
-import uuid
 import os
 import boto3
 from flask_limiter import Limiter
@@ -12,6 +12,8 @@ import dotenv
 dotenv.load_dotenv()
 
 app = Flask(__name__)
+
+fake = Faker()
 
 limiter = Limiter(
     key_func=get_remote_address,
@@ -55,7 +57,7 @@ def clone_repo(repo_url, id):
         redis.set(id, "failed")
 
 def get_uuid():
-    return str(uuid.uuid4())
+    return '-'.join([fake.word() for i in range(3)])
 
 @app.route("/deploy", methods=['GET'])
 @limiter.limit("1 per 10 seconds")
