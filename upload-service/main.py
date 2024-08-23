@@ -66,6 +66,7 @@ def deploy():
     return jsonify({"id": id}), 200
 
 @app.route("/status", methods=['GET'])
+@limiter.limit("1 per minute")
 def status():
     id = request.args.get('id')
     if not id:

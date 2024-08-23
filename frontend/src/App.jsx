@@ -32,7 +32,7 @@ function App() {
         toast.error('An error occurred while deploying your repository.', { autoClose: 5000 })
         setError('An error occurred while deploying your repository.')
       }
-    }, 500)
+    }, 2000)
   }, [deploymentId])
 
   async function deploy() {
