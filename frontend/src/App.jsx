@@ -7,6 +7,7 @@ function App() {
   const [error, setError] = useState('')
   const [deploymentId, setDeploymentId] = useState('')
   const [status, setStatus] = useState('')
+  const [deploymentUrl, setDeploymentUrl] = useState('')
 
   function capitalize(string) {
     return string.charAt(0).toUpperCase() + string.slice(1)
@@ -25,8 +26,8 @@ function App() {
         clearInterval(interval)
       }
       if (data.status === 'deployed') {
-        window.open(`http://${deploymentId}.pawsitter.site`, '_blank')
         toast.success('Your repository has been deployed successfully.', { autoClose: 5000 })
+        setDeploymentUrl(`http://${deploymentId}.pawsitter.site`)
       }
       if (data.status === 'failed') {
         toast.error('An error occurred while deploying your repository.', { autoClose: 5000 })
@@ -37,14 +38,15 @@ function App() {
 
   async function deploy() {
     if (!url) return setError('Please enter a valid GitHub repository URL.')
-
+      
     const response = await fetch(`/api/deploy?repoUrl=${url}`)
     if (!response.ok) {
       toast.error('You can only deploy a repository once every 10 seconds.', { autoClose: 5000 })
       return setError('You can only deploy a repository once every 10 seconds.')
     }
-
+      
     const data = await response.json()
+    setDeploymentUrl('')
     setDeploymentId(data.id)
     setStatus('uploading')
   }
@@ -62,6 +64,7 @@ function App() {
             <input type="text" value={url} onChange={(event) => { setUrl(event.target.value); setError('') }} placeholder="https://github.com/username/repo" className="w-full mt-4 p-2 rounded-lg bg-slate-800/10 border border-white/10 placeholder:text-white/30 text-white outline-none" />
             <button onClick={deploy} disabled={status} className={`${!status ? 'bg-slate-800/10' : 'bg-slate-500/20'} text-white p-2 rounded-lg border border-white/10 w-full font-black`}>{status ? capitalize(status) + '...' : 'Deploy'}</button>
             {error && <p className="font-extralight text-slate-300/50 text-sm">{error}</p>}
+            {deploymentUrl && <p className="font-extralight text-slate-300/50 text-sm">Your deployment is live at <a href={deploymentUrl} target="_blank" rel="noreferrer" className="font-medium text-slate-300/75">{deploymentUrl}</a></p>}
           </div>
         </div>
       </div>
