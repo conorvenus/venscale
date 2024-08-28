@@ -1,4 +1,4 @@
-from flask import Flask, request, Response
+from flask import Flask, request, Response, send_file
 import boto3
 import os
 import tldextract
@@ -32,13 +32,7 @@ def get(path):
     s3_key = f"builds/{id}/{path.split('/')[-1]}"
     try:
         s3_object = s3.get_object(Bucket="venscale", Key=s3_key)
-        response = Response(
-            s3_object["Body"].read(),
-            status=200,
-            mimetype=s3_object["ContentType"]
-        )
-        response.headers['Content-Disposition'] = f'inline; filename={path.split("/")[-1]}'
-        return response
+        return send_file(s3_object["Body"], as_attachment=False, attachment_filename=path), 200
     except s3.exceptions.NoSuchKey:
         return f"The file {path} was not found in the deployment with ID {id}!", 404
     except Exception as e:
