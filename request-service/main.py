@@ -24,7 +24,7 @@ s3 = session.client(
 @app.route('/<path:path>')
 def get(path):
     if not path or path == '/':
-        path = "index.html"
+        path = "/index.html"
     host = tldextract.extract(request.host)
     if not host.subdomain or '.' in host.subdomain:
         return f"The URL you provided does not correspond to a valid VenScale deployment!", 400
