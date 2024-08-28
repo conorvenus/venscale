@@ -32,7 +32,7 @@ def get(path):
     s3_key = f"builds/{id}/{path.split('/')[-1]}"
     try:
         if not os.path.exists(s3_key):
-            os.mkdir(os.path.dirname(s3_key))
+            os.mkdirs(os.path.dirname(s3_key))
             s3.download_file("venscale", s3_key, s3_key)
         return send_file(s3_key, as_attachment=False, attachment_filename=path)
     except s3.exceptions.NoSuchKey:
