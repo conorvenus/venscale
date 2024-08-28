@@ -31,11 +31,8 @@ def get(path):
     id = host.subdomain
     s3_key = f"builds/{id}/{path.split('/')[-1]}"
     try:
-        if not os.path.exists(s3_key):
-            os.makedirs(os.path.dirname(s3_key))
-            s3.download_file("venscale", s3_key, s3_key)
-        print(s3_key, path)
-        return send_file(s3_key, as_attachment=False, download_name=path.split('/')[-1])
+        s3_object = s3.client.get_object(Bucket="venscale", Key=s3_key)
+        return send_file(s3_object, as_attachment=False, download_name=path.split('/')[-1])
     except s3.exceptions.NoSuchKey:
         return f"The file {path} was not found in the deployment with ID {id}!", 404
     except Exception as e:
