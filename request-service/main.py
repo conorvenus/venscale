@@ -34,7 +34,7 @@ def get(path):
         if not os.path.exists(s3_key):
             os.makedirs(os.path.dirname(s3_key))
             s3.download_file("venscale", s3_key, s3_key)
-        return send_file(s3_key, as_attachment=False, attachment_filename=path)
+        return send_file(s3_key, as_attachment=False, download_name=path)
     except s3.exceptions.NoSuchKey:
         return f"The file {path} was not found in the deployment with ID {id}!", 404
     except Exception as e:
