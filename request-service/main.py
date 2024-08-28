@@ -31,7 +31,7 @@ def get(path):
     id = host.subdomain
     s3_key = f"builds/{id}/{path.split('/')[-1]}"
     try:
-        s3_object = s3.client.get_object(Bucket="venscale", Key=s3_key)
+        s3_object = s3.get_object(Bucket="venscale", Key=s3_key)
         return send_file(s3_object, as_attachment=False, download_name=path.split('/')[-1])
     except s3.exceptions.NoSuchKey:
         return f"The file {path} was not found in the deployment with ID {id}!", 404
