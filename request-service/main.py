@@ -1,4 +1,4 @@
-from flask import Flask, request, send_file
+from flask import Flask, request, Response
 import boto3
 import os
 import tldextract
@@ -29,17 +29,20 @@ def get(path):
     if not host.subdomain or '.' in host.subdomain:
         return f"The URL you provided does not correspond to a valid VenScale deployment!", 400
     id = host.subdomain
-    objects = s3.list_objects_v2(Bucket="venscale", Prefix=f"builds/{id}")
-    if "Contents" not in objects:
-        return f"Deployment {id} does not exist!", 404
-    files = [file["Key"] for file in objects["Contents"] if file["Key"].endswith(path.split("/")[-1])]
-    if len(files) == 0:
-        return f"Resource {path} does not exist in deployment {id}!", 404
-    if not os.path.exists(f"cache/{id}"):
-        os.makedirs(f"cache/{id}")
-    if not os.path.exists(f"cache/{id}/{path.split('/')[-1]}"):
-        s3.download_file("venscale", files[0], f"cache/{id}/{path.split('/')[-1]}")
-    return send_file(f"cache/{id}/" + path.split("/")[-1])
+    s3_key = f"builds/{id}/{path.split('/')[-1]}"
+    try:
+        s3_object = s3.get_object(Bucket="venscale", Key=s3_key)
+        response = Response(
+            s3_object["Body"].read(),
+            status=200,
+            mimetype=s3_object["ContentType"]
+        )
+        response.headers['Content-Disposition'] = f'inline; filename={path.split("/")[-1]}'
+        return response
+    except s3.exceptions.NoSuchKey:
+        return f"The file {path} was not found in the deployment with ID {id}!", 404
+    except Exception as e:
+        return str(e), 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5001, debug=True)
